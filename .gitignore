@@ -1,0 +1,11 @@
+__pycache__/
+*.pyc
+.env
+*.pdf
+*.docx
+.DS_Store
+.claude/
+research-sessions/
+tmp_build/
+antigravity-cli/
+.antigravitycli/

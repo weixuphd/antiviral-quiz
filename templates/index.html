@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>抗病毒药题库 — 药理学第四十四章</title>
+<style>
+  :root {
+    --primary: #2563eb; --primary-light: #dbeafe;
+    --success: #16a34a; --success-light: #dcfce7;
+    --danger: #dc2626;  --danger-light: #fee2e2;
+    --bg: #f1f5f9;      --card: #ffffff;
+    --border: #e2e8f0;  --text: #1e293b;
+    --text-muted: #64748b; --radius: 10px;
+    --shadow: 0 1px 3px rgba(0,0,0,.06),0 1px 2px rgba(0,0,0,.04);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"PingFang SC","Microsoft YaHei",sans-serif;
+    background:var(--bg);color:var(--text);line-height:1.6;min-height:100vh;
+  }
+  .container{max-width:860px;margin:0 auto;padding:12px}
+
+  .topbar{
+    background:var(--card);border-bottom:1px solid var(--border);
+    padding:12px 20px;position:sticky;top:0;z-index:100;box-shadow:var(--shadow);
+    display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;
+  }
+  .topbar h1{font-size:1.15rem;font-weight:700}
+  .top-stats{display:flex;gap:14px;font-size:.8rem;color:var(--text-muted);flex-wrap:wrap}
+  .top-stats strong{color:var(--text)}
+
+  .controls{
+    background:var(--card);border-radius:var(--radius);padding:12px 16px;
+    margin-bottom:12px;box-shadow:var(--shadow);
+    display:flex;flex-wrap:wrap;gap:10px;align-items:center;font-size:.85rem;
+  }
+  select,button{
+    padding:7px 13px;border:1px solid var(--border);border-radius:6px;
+    font-size:.85rem;font-family:inherit;cursor:pointer;background:var(--card);color:var(--text);
+  }
+  select:hover,button:hover{border-color:var(--primary)}
+  .btn-primary{background:var(--primary);color:#fff;border-color:var(--primary);font-weight:600}
+  .btn-outline{border-color:var(--primary);color:var(--primary)}
+  .flex-spacer{flex:1}
+
+  .card{
+    background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden;
+    transition:opacity .15s;
+  }
+  .card.loading-q{opacity:.5;pointer-events:none}
+  .card-hd{
+    padding:12px 18px;border-bottom:1px solid var(--border);
+    display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:6px;
+  }
+  .badge{display:inline-block;padding:3px 10px;border-radius:20px;font-size:.78rem;font-weight:600}
+  .badge-cat{background:var(--primary-light);color:var(--primary)}
+  .badge-num{background:#f1f5f9;color:var(--text-muted)}
+
+  .card-body{padding:22px 18px}
+  .q-text{font-size:1.02rem;font-weight:600;margin-bottom:18px;line-height:1.7}
+  .options{display:flex;flex-direction:column;gap:8px}
+  .opt{
+    display:flex;align-items:flex-start;gap:10px;padding:13px 15px;
+    border:2px solid var(--border);border-radius:8px;cursor:pointer;transition:all .12s;user-select:none;
+  }
+  .opt:hover{border-color:var(--primary);background:#f8faff}
+  .opt.sel{border-color:var(--primary);background:var(--primary-light)}
+  .opt.good{border-color:var(--success);background:var(--success-light)}
+  .opt.bad{border-color:var(--danger);background:var(--danger-light)}
+  .opt.reveal{border-color:var(--success);background:var(--success-light)}
+  .opt-radio{
+    width:23px;height:23px;border:2px solid #cbd5e1;border-radius:50%;
+    display:flex;align-items:center;justify-content:center;
+    font-weight:700;font-size:.75rem;flex-shrink:0;color:var(--text-muted);margin-top:1px;
+  }
+  .opt.sel .opt-radio,.opt.good .opt-radio,.opt.reveal .opt-radio{background:var(--primary);border-color:var(--primary);color:#fff}
+  .opt.bad .opt-radio{background:var(--danger);border-color:var(--danger);color:#fff}
+  .opt-text{flex:1}
+  .locked .opt{pointer-events:none}
+
+  .expl{
+    margin-top:14px;padding:14px 16px;border-radius:8px;
+    background:#fffbeb;border:1px solid #fde68a;font-size:.88rem;line-height:1.6;display:none;
+  }
+  .expl.on{display:block}
+  .expl-title{font-weight:700;margin-bottom:3px;color:#92400e}
+
+  .card-ft{
+    display:flex;gap:8px;padding:14px 18px;border-top:1px solid var(--border);
+    align-items:center;flex-wrap:wrap;
+  }
+  .card-ft span{font-size:.82rem;color:var(--text-muted)}
+
+  .dot-nav{
+    display:flex;gap:3px;flex-wrap:wrap;padding:10px 18px;
+    border-top:1px solid var(--border);max-height:150px;overflow-y:auto;
+  }
+  .dot{
+    width:26px;height:26px;border-radius:4px;border:1px solid var(--border);
+    background:#fff;cursor:pointer;font-size:.68rem;font-family:inherit;
+    display:flex;align-items:center;justify-content:center;flex-shrink:0;color:var(--text-muted);
+  }
+  .dot:hover{border-color:var(--primary)}
+  .dot.cur{background:var(--primary);color:#fff;border-color:var(--primary);font-weight:700}
+  .dot.good{background:var(--success-light);border-color:var(--success);color:var(--success)}
+  .dot.bad{background:var(--danger-light);border-color:var(--danger);color:var(--danger)}
+
+  .stats{
+    background:var(--card);border-radius:var(--radius);padding:18px;margin-top:12px;box-shadow:var(--shadow);
+  }
+  .stats h3{font-size:.9rem;margin-bottom:10px}
+  .stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:10px}
+  .stat-item{text-align:center;padding:10px;background:var(--bg);border-radius:8px}
+  .stat-val{font-size:1.35rem;font-weight:700;color:var(--primary)}
+  .stat-label{font-size:.72rem;color:var(--text-muted);margin-top:1px}
+
+  .cat-row{
+    display:flex;align-items:center;gap:8px;padding:5px 0;
+    border-bottom:1px solid var(--border);font-size:.8rem;
+  }
+  .cat-name{width:130px;flex-shrink:0}
+  .cat-bar{flex:1;height:6px;background:#e5e7eb;border-radius:3px;overflow:hidden}
+  .cat-fill{height:100%;border-radius:3px;transition:width .3s}
+  .cat-num{font-size:.75rem;color:var(--text-muted);width:55px;text-align:right}
+
+  .loading{text-align:center;padding:60px 20px;color:var(--text-muted)}
+  .spinner{
+    width:36px;height:36px;border:3px solid var(--border);
+    border-top:3px solid var(--primary);border-radius:50%;
+    animation:spin .8s linear infinite;margin:0 auto 12px;
+  }
+  @keyframes spin{to{transform:rotate(360deg)}}
+
+  @media(max-width:600px){
+    .topbar{flex-direction:column;gap:4px}
+    .controls{flex-direction:column;align-items:stretch}
+    .dot-nav{justify-content:center}
+    .dot{width:22px;height:22px;font-size:.6rem}
+  }
+
+  .toast{
+    position:fixed;top:16px;left:50%;transform:translateX(-50%);
+    padding:10px 20px;border-radius:6px;font-size:.84rem;font-weight:600;
+    z-index:999;box-shadow:0 4px 12px rgba(0,0,0,.15);animation:fadeIn .25s;
+  }
+  .toast-err{background:#fee2e2;color:#991b1b}
+  .toast-ok{background:#dcfce7;color:#166534}
+  @keyframes fadeIn{from{opacity:0;transform:translateX(-50%) translateY(-8px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
+
+  .footer-note{
+    text-align:center;padding:20px;color:var(--text-muted);font-size:.75rem;
+  }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <h1>第四十四章 抗病毒药 · 题库训练</h1>
+  <div class="top-stats">
+    <span>已答 <strong id="hdAns">0</strong>/<span id="hdTot">-</span></span>
+    <span>正确 <strong id="hdCor">0</strong></span>
+    <span>正确率 <strong id="hdPct">-</strong></span>
+  </div>
+</div>
+
+<div class="container">
+  <div class="loading" id="loading">
+    <div class="spinner"></div>
+    <div>正在连接题库服务器...</div>
+    <div style="font-size:.8rem;margin-top:4px">如长时间无响应，请刷新页面</div>
+  </div>
+
+  <div id="app" style="display:none">
+    <div class="controls">
+      <span>分类筛选:</span><select id="catSel"></select>
+      <span>模式:</span><select id="modeSel">
+        <option value="all">全部顺序</option>
+        <option value="rnd">随机出题</option>
+        <option value="wrong">错题重做</option>
+        <option value="unans">未答题</option>
+      </select>
+      <div class="flex-spacer"></div>
+      <button class="btn-outline" id="btnReset">重置进度</button>
+    </div>
+
+    <div class="card" id="qCard">
+      <div class="card-hd">
+        <span class="badge badge-cat" id="qCat">-</span>
+        <span class="badge badge-num" id="qNum">-</span>
+      </div>
+      <div class="card-body" id="qBody">
+        <div class="q-text" id="qText"></div>
+        <div class="options" id="qOpts"></div>
+        <div class="expl" id="qExpl">
+          <div class="expl-title">解析</div>
+          <div id="qExplText"></div>
+        </div>
+      </div>
+      <div class="card-ft">
+        <button id="btnPrev">◀ 上一题</button>
+        <button id="btnNext">下一题 ▶</button>
+        <span id="navInfo"></span>
+        <div class="flex-spacer"></div>
+        <button class="btn-outline" id="btnReveal">显示答案</button>
+      </div>
+      <div class="dot-nav" id="dotNav"></div>
+    </div>
+
+    <div class="stats">
+      <h3>学习统计</h3>
+      <div class="stats-grid">
+        <div class="stat-item"><div class="stat-val" id="stTotal">-</div><div class="stat-label">总题数</div></div>
+        <div class="stat-item"><div class="stat-val" id="stAns">0</div><div class="stat-label">已答</div></div>
+        <div class="stat-item"><div class="stat-val" id="stCor">0</div><div class="stat-label">正确</div></div>
+        <div class="stat-item"><div class="stat-val" id="stPct">-</div><div class="stat-label">正确率</div></div>
+        <div class="stat-item"><div class="stat-val" id="stWrong">0</div><div class="stat-label">错题</div></div>
+      </div>
+      <div id="catStats" style="margin-top:12px"></div>
+    </div>
+
+    <div class="footer-note">
+      题库数据存储在服务器端，每次仅加载一道题目。答题进度保存在本地浏览器中。
+    </div>
+  </div>
+</div>
+
+<script>
+// ===== Persistent State (localStorage) =====
+const LS_KEY = 'av_quiz_v3';
+let state = { answers: {}, correctMap: {}, explanations: {} };
+
+function loadState() {
+  try { const s = JSON.parse(localStorage.getItem(LS_KEY)); if (s) state = s; } catch(e) {}
+}
+function saveState() { localStorage.setItem(LS_KEY, JSON.stringify(state)); }
+
+// ===== Session State =====
+let info = null;
+let cache = {};      // {idx: question_obj}
+let currentIdx = 0;
+let currentMode = 'all';
+let catFilter = '__all__';
+
+// ===== Init =====
+async function init() {
+  loadState();
+  try {
+    const r = await fetch('/api/info');
+    if (!r.ok) throw new Error('HTTP ' + r.status);
+    info = await r.json();
+  } catch(e) {
+    document.getElementById('loading').innerHTML =
+      '<p style="color:var(--danger);font-size:1.1rem">❌ 无法连接题库服务器</p>' +
+      '<p style="color:var(--text-muted);margin-top:8px">请确认服务器已启动，然后刷新页面。</p>';
+    return;
+  }
+
+  document.getElementById('hdTot').textContent = info.total;
+  document.getElementById('stTotal').textContent = info.total;
+
+  // Category dropdown
+  const sel = document.getElementById('catSel');
+  sel.innerHTML = '<option value="__all__">全部题目 (' + info.total + '题)</option>';
+  (info.categories || []).forEach(c => {
+    sel.innerHTML += `<option value="${escHtml(c)}">${escHtml(c)}</option>`;
+  });
+  sel.onchange = () => { catFilter = sel.value; applyFilter(); };
+
+  document.getElementById('modeSel').onchange = () => {
+    currentMode = document.getElementById('modeSel').value;
+    applyFilter();
+  };
+  document.getElementById('btnReset').onclick = resetAll;
+  document.getElementById('btnPrev').onclick = () => { if(currentIdx>0){currentIdx--;render()} };
+  document.getElementById('btnNext').onclick = () => { if(currentIdx<info.total-1){currentIdx++;render()} };
+  document.getElementById('btnReveal').onclick = reveal;
+
+  document.addEventListener('keydown', e => {
+    const q = cache[currentIdx];
+    const answered = q && state.answers[q.id] !== undefined;
+    if (!answered) {
+      const m = {'1':'A','2':'B','3':'C','4':'D','5':'E'};
+      const k = e.key.toUpperCase();
+      const lbl = m[k] || (['A','B','C','D','E'].includes(k) ? k : null);
+      if (lbl) answer(lbl);
+    }
+    if (e.key === 'ArrowLeft' && currentIdx > 0) { currentIdx--; render(); }
+    if (e.key === 'ArrowRight' && currentIdx < info.total - 1) { currentIdx++; render(); }
+  });
+
+  // Prefetch first question
+  await loadOne(0);
+  document.getElementById('loading').style.display = 'none';
+  document.getElementById('app').style.display = 'block';
+  render();
+}
+
+// ===== API =====
+async function loadOne(idx) {
+  if (cache[idx]) return cache[idx];
+  const r = await fetch(`/api/question/${idx}`);
+  if (!r.ok) throw new Error(`Load Q${idx} failed: ${r.status}`);
+  const q = await r.json();
+  cache[idx] = q;
+  return q;
+}
+
+async function checkAnswer(idx, ans) {
+  const q = cache[idx];
+  if (!q) return null;
+  const r = await fetch('/api/check', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({id: q.id, answer: ans}),
+  });
+  if (!r.ok) return null;
+  return r.json();
+}
+
+async function revealAnswer(idx) {
+  const r = await fetch(`/api/reveal/${idx}`);
+  if (!r.ok) return null;
+  return r.json();
+}
+
+// ===== Render =====
+async function render() {
+  const idx = currentIdx;
+  const card = document.getElementById('qCard');
+  card.classList.add('loading-q');
+
+  let q;
+  try { q = await loadOne(idx); } catch(e) { card.classList.remove('loading-q'); return; }
+
+  document.getElementById('qCat').textContent = q.category || '综合';
+  document.getElementById('qNum').textContent = `第 ${idx+1} 题 / 共 ${info.total} 题`;
+  document.getElementById('qText').textContent = q.question;
+
+  const labels = ['A','B','C','D','E'];
+  const answered = state.answers[q.id] !== undefined;
+  const userAns = state.answers[q.id];
+  const correctAns = state.correctMap[q.id];
+
+  const optsDiv = document.getElementById('qOpts');
+  optsDiv.innerHTML = '';
+  (q.options || []).forEach((opt, i) => {
+    const lbl = labels[i];
+    let cls = 'opt';
+    if (answered && correctAns) {
+      if (lbl === correctAns) cls += ' reveal';
+      else if (lbl === userAns && userAns !== correctAns && userAns !== '__SKIPPED__') cls += ' bad';
+    }
+    const div = document.createElement('div');
+    div.className = cls;
+    div.innerHTML = `<span class="opt-radio">${lbl}</span><span class="opt-text">${opt}</span>`;
+    if (!answered) div.onclick = () => answer(lbl);
+    optsDiv.appendChild(div);
+  });
+
+  const bodyDiv = document.getElementById('qBody');
+  if (answered) bodyDiv.classList.add('locked');
+  else bodyDiv.classList.remove('locked');
+
+  const explDiv = document.getElementById('qExpl');
+  if (answered && state.explanations[q.id]) {
+    explDiv.classList.add('on');
+    document.getElementById('qExplText').textContent = state.explanations[q.id];
+  } else {
+    explDiv.classList.remove('on');
+  }
+
+  document.getElementById('btnPrev').disabled = idx === 0;
+  document.getElementById('btnNext').disabled = idx >= info.total - 1;
+  document.getElementById('btnReveal').style.display = answered ? 'none' : '';
+  document.getElementById('navInfo').textContent = `${idx+1} / ${info.total}`;
+
+  card.classList.remove('loading-q');
+  drawDots();
+  updateStats();
+}
+
+async function answer(label) {
+  const idx = currentIdx;
+  const q = cache[idx];
+  if (!q || state.answers[q.id] !== undefined) return;
+
+  state.answers[q.id] = label;
+  const result = await checkAnswer(idx, label);
+  if (result) {
+    state.correctMap[q.id] = result.correct_answer;
+    state.explanations[q.id] = result.explanation;
+  }
+  saveState();
+  render();
+}
+
+async function reveal() {
+  const idx = currentIdx;
+  const q = cache[idx];
+  if (!q) return;
+
+  const result = await revealAnswer(idx);
+  if (result) {
+    state.correctMap[q.id] = result.correct_answer;
+    state.explanations[q.id] = result.explanation;
+    if (state.answers[q.id] === undefined) {
+      state.answers[q.id] = '__SKIPPED__';
+    }
+  }
+  saveState();
+  render();
+}
+
+function drawDots() {
+  const div = document.getElementById('dotNav');
+  let html = '';
+  for (let i = 0; i < info.total; i++) {
+    let cls = 'dot';
+    if (i === currentIdx) cls += ' cur';
+    const q = cache[i];
+    if (q && state.answers[q.id] && state.answers[q.id] !== '__SKIPPED__') {
+      cls += (state.answers[q.id] === state.correctMap[q.id]) ? ' good' : ' bad';
+    }
+    html += `<button class="${cls}" onclick="jump(${i})" title="第${i+1}题">${i+1}</button>`;
+  }
+  div.innerHTML = html;
+}
+
+function jump(i) { currentIdx = i; render(); }
+
+function updateStats() {
+  const total = info.total;
+  const allIds = Object.keys(state.answers);
+  const ansIds = allIds.filter(id => state.answers[id] !== '__SKIPPED__');
+  const corIds = ansIds.filter(id => state.answers[id] === state.correctMap[id]);
+  const ansN = ansIds.length, corN = corIds.length;
+  const pct = ansN > 0 ? Math.round(corN / ansN * 100) : 0;
+  const wrongN = ansN - corN;
+
+  ['hdAns','stAns'].forEach(id => document.getElementById(id).textContent = ansN);
+  ['hdCor','stCor'].forEach(id => document.getElementById(id).textContent = corN);
+  ['hdPct','stPct'].forEach(id => document.getElementById(id).textContent = ansN > 0 ? pct + '%' : '-');
+  document.getElementById('stWrong').textContent = wrongN;
+
+  // Category breakdown
+  const cmap = {};
+  for (const c of (info.categories || [])) cmap[c] = {t:0,a:0,ok:0};
+  cmap['综合'] = {t:0,a:0,ok:0};
+  for (let i = 0; i < total; i++) {
+    const q = cache[i];
+    if (!q) { cmap['(未加载)'] = (cmap['(未加载)']||{t:0,a:0,ok:0}); cmap['(未加载)'].t++; continue; }
+    const c = q.category || '综合';
+    if (!cmap[c]) cmap[c] = {t:0,a:0,ok:0};
+    cmap[c].t++;
+    if (state.answers[q.id] && state.answers[q.id] !== '__SKIPPED__') {
+      cmap[c].a++;
+      if (state.answers[q.id] === state.correctMap[q.id]) cmap[c].ok++;
+    }
+  }
+  let h = '';
+  for (const [c, s] of Object.entries(cmap)) {
+    if (s.t === 0) continue;
+    const pc = s.a > 0 ? Math.round(s.ok / s.a * 100) : 0;
+    h += `<div class="cat-row">
+      <span class="cat-name">${escHtml(c)}</span>
+      <div class="cat-bar"><div class="cat-fill" style="width:${pc}%;background:var(--success)"></div></div>
+      <span class="cat-num">${s.ok}/${s.a}/${s.t}</span>
+    </div>`;
+  }
+  document.getElementById('catStats').innerHTML = h;
+}
+
+// ===== Filters =====
+function applyFilter() {
+  if (currentMode === 'wrong') {
+    const wrongIdx = [];
+    for (let i = 0; i < info.total; i++) {
+      const q = cache[i];
+      if (q && state.answers[q.id] && state.answers[q.id] !== '__SKIPPED__'
+          && state.answers[q.id] !== state.correctMap[q.id]) wrongIdx.push(i);
+    }
+    if (wrongIdx.length === 0) {
+      toast('暂无错题，继续保持！', 'ok');
+      document.getElementById('modeSel').value = 'all';
+      currentMode = 'all';
+    } else {
+      currentIdx = wrongIdx[0];
+    }
+  } else if (currentMode === 'rnd') {
+    currentIdx = Math.floor(Math.random() * info.total);
+  } else if (currentMode === 'unans') {
+    let found = false;
+    for (let i = 0; i < info.total; i++) {
+      const q = cache[i];
+      if (q && state.answers[q.id] === undefined) { currentIdx = i; found = true; break; }
+    }
+    if (!found) {
+      toast('所有题目已答完！', 'ok');
+      document.getElementById('modeSel').value = 'all';
+      currentMode = 'all';
+    }
+  }
+  render().catch(console.error);
+}
+
+function resetAll() {
+  if (!confirm('确定要重置所有答题进度吗？已答记录将全部清除。')) return;
+  state = { answers: {}, correctMap: {}, explanations: {} };
+  saveState();
+  currentIdx = 0;
+  currentMode = 'all';
+  document.getElementById('modeSel').value = 'all';
+  render().catch(console.error);
+}
+
+function escHtml(s) {
+  const d = document.createElement('div'); d.textContent = s; return d.innerHTML;
+}
+
+function toast(msg, type) {
+  const el = document.createElement('div');
+  el.className = 'toast toast-' + (type==='err'?'err':'ok');
+  el.textContent = msg;
+  document.body.appendChild(el);
+  setTimeout(() => el.remove(), 2200);
+}
+
+// ===== Boot =====
+init();
+</script>
+</body>
+</html>
