@@ -320,12 +320,12 @@ var __EXP={date:"EXPIRY_DATE",sig:"EXPIRY_SIG",maxDays:MAX_DAYS,build:"BUILD_ID"
 
   var expireDate=new Date(__EXP.date+"T23:59:59");
   var now=new Date();
-  var firstUse=localStorage.getItem("_av_fu");
-  var lastUse=localStorage.getItem("_av_lu");
+  var firstUse=localStorage.getItem("LS_PREFIX"+"fu");
+  var lastUse=localStorage.getItem("LS_PREFIX"+"lu");
 
   if(!firstUse){
     firstUse=now.toISOString();
-    try{localStorage.setItem("_av_fu",firstUse)}catch(e){}
+    try{localStorage.setItem("LS_PREFIX"+"fu",firstUse)}catch(e){}
   }else{
     var fu=new Date(firstUse);
     if(now<fu){
@@ -343,7 +343,7 @@ var __EXP={date:"EXPIRY_DATE",sig:"EXPIRY_SIG",maxDays:MAX_DAYS,build:"BUILD_ID"
       }
     }
   }
-  try{localStorage.setItem("_av_lu",now.toISOString())}catch(e){}
+  try{localStorage.setItem("LS_PREFIX"+"lu",now.toISOString())}catch(e){}
 
   if(now>expireDate){
     document.getElementById("expiredView").style.display="flex";
@@ -358,7 +358,7 @@ var __KEY="EXPIRY_DATE";
 DECODE_FUNCTION
 
 // ===== STATE =====
-var QS=[],currentIdx=0,answers={},correctMap={},explanations={},multiSel={},LS="_av_qz_v4";
+var QS=[],currentIdx=0,answers={},correctMap={},explanations={},multiSel={},LS="LS_PREFIX"+"qz";
 function _s(){try{localStorage.setItem(LS,JSON.stringify({a:answers,c:correctMap,e:explanations}))}catch(e){}}
 function _l(){try{var d=JSON.parse(localStorage.getItem(LS)||"{}");answers=d.a||{};correctMap=d.c||{};explanations=d.e||{};}catch(e){}}
 
@@ -593,9 +593,13 @@ MANIFEST = {
 # ---------------------------------------------------------------------------
 # Build
 # ---------------------------------------------------------------------------
-def build(expire_date: str, max_days: int = 0, output: str = DEFAULT_OUTPUT, mode: str = "full", csv_path: str = None, title: str = None):
+def build(expire_date: str, max_days: int = 0, output: str = DEFAULT_OUTPUT, mode: str = "full", csv_path: str = None, title: str = None, ls_prefix: str = None):
     if csv_path is None:
         csv_path = CSV_PATH
+    if ls_prefix is None:
+        import re
+        m = re.search(r'ch(\d+)', os.path.basename(csv_path))
+        ls_prefix = f"_ch{m.group(1)}_" if m else "_av_"
     questions = load_questions(csv_path)
     qtype_counts = {}
     for q in questions:
@@ -636,6 +640,7 @@ def build(expire_date: str, max_days: int = 0, output: str = DEFAULT_OUTPUT, mod
     html = html.replace("ENCODED_QUESTIONS", encoded)
     html = html.replace("DECODE_FUNCTION", decode_fn)
     html = html.replace("DECODE_CALL", init_code)
+    html = html.replace("LS_PREFIX", ls_prefix)
 
     if title:
         html = html.replace("抗病毒药题库", title)
@@ -649,6 +654,7 @@ def build(expire_date: str, max_days: int = 0, output: str = DEFAULT_OUTPUT, mod
     size_kb = os.path.getsize(output) / 1024
     print(f"[build] Output: {output}  ({size_kb:.0f} KB)")
     print(f"[build] Mode: {mode}")
+    print(f"[build] LS prefix: {ls_prefix}")
     print(f"[build] Expiry: {expire_date}" + (f" + {max_days}d from first use" if max_days > 0 else ""))
     print(f"[build] Ready — upload to any web host and share the URL in WeChat")
 
@@ -667,6 +673,7 @@ if __name__ == "__main__":
     parser.add_argument("--output", default=DEFAULT_OUTPUT, help="Output HTML file")
     parser.add_argument("--csv", default=None, help="CSV question file (default: antiviral_v2.csv)")
     parser.add_argument("--title", default=None, help="Page title (default: 抗病毒药题库)")
+    parser.add_argument("--key", default=None, help="LocalStorage key prefix (auto-derived from CSV name if omitted, e.g. _ch36_)")
     args = parser.parse_args()
 
     try:
@@ -675,4 +682,4 @@ if __name__ == "__main__":
         print(f"ERROR: Invalid date '{args.expire}'. Use YYYY-MM-DD.")
         sys.exit(1)
 
-    build(args.expire, args.max_days, args.output, args.mode, args.csv, args.title)
+    build(args.expire, args.max_days, args.output, args.mode, args.csv, args.title, args.key)

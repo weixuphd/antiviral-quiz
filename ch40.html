@@ -188,26 +188,26 @@ select,button{padding:7px 10px;border:1px solid var(--b);border-radius:8px;font-
 
 <script>
 // ===== EXPIRY CONFIG =====
-var __EXP={date:"2026-09-01",sig:"na",maxDays:90,build:"202605281748"};
+var __EXP={date:"2026-09-01",sig:"na",maxDays:90,build:"202605281825"};
 
 (function(){
   var raw=__EXP.date+":"+__EXP.maxDays+":"+__EXP.build,h=0;
   for(var i=0;i<raw.length;i++)h=((h*31)+raw.charCodeAt(i))>>>0;
   h=((h>>>16)^(h&0xFFFF)).toString(16);
   if(h.length<4)h="0".repeat(4-h.length)+h;
-  if(h!=="f44d"){
+  if(h!=="e9cd"){
     document.body.innerHTML='<div style="padding:40px;text-align:center;color:#dc2626;font-size:1.1rem">应用校验失败。请从老师处重新获取。</div>';
     throw new Error("integrity");
   }
 
   var expireDate=new Date(__EXP.date+"T23:59:59");
   var now=new Date();
-  var firstUse=localStorage.getItem("_av_fu");
-  var lastUse=localStorage.getItem("_av_lu");
+  var firstUse=localStorage.getItem("_ch40_"+"fu");
+  var lastUse=localStorage.getItem("_ch40_"+"lu");
 
   if(!firstUse){
     firstUse=now.toISOString();
-    try{localStorage.setItem("_av_fu",firstUse)}catch(e){}
+    try{localStorage.setItem("_ch40_"+"fu",firstUse)}catch(e){}
   }else{
     var fu=new Date(firstUse);
     if(now<fu){
@@ -225,7 +225,7 @@ var __EXP={date:"2026-09-01",sig:"na",maxDays:90,build:"202605281748"};
       }
     }
   }
-  try{localStorage.setItem("_av_lu",now.toISOString())}catch(e){}
+  try{localStorage.setItem("_ch40_"+"lu",now.toISOString())}catch(e){}
 
   if(now>expireDate){
     document.getElementById("expiredView").style.display="flex";
@@ -250,7 +250,7 @@ function _decode(){
 }
 
 // ===== STATE =====
-var QS=[],currentIdx=0,answers={},correctMap={},explanations={},multiSel={},LS="_av_qz_v4";
+var QS=[],currentIdx=0,answers={},correctMap={},explanations={},multiSel={},LS="_ch40_"+"qz";
 function _s(){try{localStorage.setItem(LS,JSON.stringify({a:answers,c:correctMap,e:explanations}))}catch(e){}}
 function _l(){try{var d=JSON.parse(localStorage.getItem(LS)||"{}");answers=d.a||{};correctMap=d.c||{};explanations=d.e||{};}catch(e){}}
 
