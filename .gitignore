@@ -13,3 +13,5 @@ antiviral.csv
 antiviral_v2.csv
 antiviral_ch*.csv
 pharma_cn_ch*.csv
+chapter_texts/
+chapter_ranges.txt
