@@ -23,7 +23,7 @@ import zlib
 # ---------------------------------------------------------------------------
 # Config
 # ---------------------------------------------------------------------------
-CSV_PATH = os.path.join(os.path.dirname(__file__), "antiviral_v2.csv")
+CSV_PATH = os.path.join(os.path.dirname(__file__), "pharma_cn_ch44.csv")
 DEFAULT_OUTPUT = os.path.join(os.path.dirname(__file__), "static", "antiviral_app.html")
 DEFAULT_EXPIRE = (datetime.date.today() + datetime.timedelta(days=180)).isoformat()
 
