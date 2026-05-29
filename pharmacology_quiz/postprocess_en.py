@@ -158,7 +158,7 @@ def fix_full_english_name(text):
             term = m.group(2).strip()
             suffix = m.group(3)
             term_cap = term[0].upper() + term[1:] if term and term[0].islower() else term
-            return f"{prefix}{term_cap} ({abbr}){suffix}"
+            return f"{prefix}{term_cap}{suffix}"
         text = pattern.sub(repl, text)
     return text
 
